@@ -1,0 +1,33 @@
+version: '3.2'
+
+services:
+
+  gitlab:
+    image: gitlab/gitlab-ce
+    hostname: gitlab
+    # volumes:
+    #   - ./etc/gitlab:/etc/gitlab
+    #   - ./data/gitlab:/var/opt/gitlab
+    ports: ["8443:443", "8080:80", "8022:22", "4567:4567"]
+    environment:
+      - GITLAB_ROOT_PASSWORD=changeM3
+      - GITLAB_SHARED_RUNNERS_REGISTRATION_TOKEN=NDO1_runners
+      - GITLAB_HOST=http://10.10.20.50
+    extra_hosts:
+      gitlab: 10.10.20.50
+
+  runner1:
+    image: gitlab/gitlab-runner
+    environment:
+      - REGISTRATION_TOKEN=NDO1_runners
+      - RUNNER_NAME=runner1
+      - RUNNER_EXECUTOR=docker
+      - CI_SERVER_URL=http://gitlab/
+      - CLONE_URL=http://10.10.20.50/
+      - REGISTER_NON_INTERACTIVE=true
+      - DOCKER_IMAGE=alpine
+      - DOCKER_EXTRA_HOSTS=gitlab:10.10.20.50
+      - DOCKER_PULL_POLICY=if-not-present
+    volumes:
+      #- ./etc/runner:/etc/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
